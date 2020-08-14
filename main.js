@@ -10,7 +10,7 @@ var boardSize = 19;
 
 // 全局变量
 var cursorPos = { x: 0, y: 0 }
-var turn = 1; // or 2
+var turn = 1; // 1 黑 or 2 白
 var stones = new Array(boardSize * boardSize)
 // [sg] ; sg::={ color: color, stones: Map, qis: Map} ; Map::=[int:{x,y}]
 var stoneGroups = new Array();
@@ -69,8 +69,11 @@ var sgmerge = function (x, y, color, indexs, qis) {
         newQi = slmerge(newQi, stoneGroups[idx].qis)
     }
     ss.set(toI(x, y), { x: x, y: y })
+
+    // 这两个其实一点都没必要
     newQi = slmergePoss(newQi, qis)
     newQi.delete(toI(x, y))
+
     // now ss all together
     var newsgs = sgRemoveItems(indexs)
     newsgs.push({ color: color, stones: ss, qis: newQi })
@@ -347,7 +350,6 @@ _C.addEventListener("click", function (event) {
                     alert("禁着")
                     return;
                 }
-                // sset(cursorPos.x, cursorPos.y, turn)
             }
 
             turn = 3 - turn;
@@ -357,6 +359,7 @@ _C.addEventListener("click", function (event) {
 var RePlay = document.getElementById("RePlay");
 RePlay.addEventListener("click", function (event) {
     if (confirm("确定要重现棋谱？棋盘将会清空")) {
+        boardClear();
         var z = _T.value.split(/\n|\r|\r\n/)
         for (let ins of z) {
             if (ins.length > 0) {
@@ -370,12 +373,16 @@ RePlay.addEventListener("click", function (event) {
     }
 })
 
-function init() {
+var boardClear = function () {
     for (var i = 0; i < boardSize; i++) {
         for (var j = 0; j < boardSize; j++) {
             sset(i, j, 0)
         }
     }
+    stoneGroups = [];
+}
+function init() {
+    boardClear();
 }
 function step(timestamp) {
     ctx.save();
