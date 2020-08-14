@@ -37,7 +37,7 @@ var sgadd = function (x, y, color) {
         // 寻找四个气，如同色，则寻找自己所在的区块
         // 最终找到所有的棋子块 stone group
         var myGroups = findGroups(x, y, color)
-        console.log("myGroups", myGroups)
+        // console.log("myGroups", myGroups)
         sgmerge(x, y, color, myGroups, findNeighborsColor(x, y, 0))
         // 这里不如把所有的气重新算一遍？？？
         // sgRemoveAllQiSelf(x, y)
@@ -320,6 +320,7 @@ _C.addEventListener("mousemove", function (event) {
     cursorPos.x = i; cursorPos.y = j;
     // console.log(findNeighbors(i,j))
 })
+var _T = document.getElementById("T")
 _C.addEventListener("click", function (event) {
     // console.log("i,j", cursorPos.x, cursorPos.y)
     if (cursorPos.x < gridSize && cursorPos.y < gridSize) {
@@ -331,6 +332,10 @@ _C.addEventListener("click", function (event) {
 
             makeMove(cursorPos, turn)
             console.log(stoneGroups)
+
+            var pu = "" + cursorPos.x + "," + cursorPos.y + " " + turn
+            console.log(pu)
+            _T.value += pu + "\r\n"
 
             // 提子
             // 首先检测周围的不同色棋子是否可以提
@@ -346,6 +351,21 @@ _C.addEventListener("click", function (event) {
             }
 
             turn = 3 - turn;
+        }
+    }
+})
+var RePlay = document.getElementById("RePlay");
+RePlay.addEventListener("click", function (event) {
+    if (confirm("确定要重现棋谱？棋盘将会清空")) {
+        var z = _T.value.split(/\n|\r|\r\n/)
+        for (let ins of z) {
+            if (ins.length > 0) {
+                var a = ins.split(" ")
+                var color = parseInt(a[1])
+                var aa = a[0].split(",")
+                makeMove({ x: parseInt(aa[0]), y: parseInt(aa[1]) }, color)
+                tizi(parseInt(aa[0]), parseInt(aa[1]), color)
+            }
         }
     }
 })
@@ -382,19 +402,3 @@ function step(timestamp) {
 }
 init();
 window.requestAnimationFrame(step);
-
-// ctx.fillStyle = 'green';
-// ctx.fillRect(10, 10, 150, 100);
-
-// ctx.translate(10, 0)
-
-// ctx.fillStyle = 'red';
-// ctx.fillRect(10, 10, 150, 100);
-
-
-// ctx.beginPath();
-// ctx.moveTo(125, 125);
-// ctx.lineTo(125, 45);
-// ctx.lineTo(45, 125);
-// ctx.closePath();
-// ctx.stroke();
