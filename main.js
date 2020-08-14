@@ -314,8 +314,6 @@ _C.addEventListener("click", function (event) {
         if (sget(cursorPos.x, cursorPos.y) == 0) {
             console.log("doit", cursorPos.x, cursorPos.y, turn)
 
-
-
             sgadd(cursorPos.x, cursorPos.y, turn)
             console.log(stoneGroups)
 
