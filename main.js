@@ -12,9 +12,13 @@ var boardSize = 19;
 var cursorPos = { x: 0, y: 0 }
 var turn = 1; // or 2
 var stones = new Array(boardSize * boardSize)
-var stoneGroups = new Array(); // [sg] ; sg::={ color: color, stones: [{ x: x, y: y }] }
+// [sg] ; sg::={ color: color, stones: Map, qis: Map} ; Map::=[int:{x,y}]
+var stoneGroups = new Array();
 
 // 各种函数
+var toI = function (i, j) {
+    return i * boardSize + j
+}
 var sget = function (i, j) {
     return stones[i * boardSize + j]
 }
@@ -23,46 +27,102 @@ var sset = function (i, j, color) {
 }
 var sgadd = function (x, y, color) {
     if (stoneGroups.length == 0) {
-        var e = { color: color, stones: [{ x: x, y: y }] }
+        var e = {
+            color: color,
+            stones: new Map([[toI(x, y), { x: x, y: y }]]),
+            qis: slmergePoss(new Map(), findNeighbors(x, y))
+        }
         stoneGroups.push(e)
     } else {
         // 寻找四个气，如同色，则寻找自己所在的区块
         // 最终找到所有的棋子块 stone group
         var myGroups = findGroups(x, y, color)
-        console.log("myGroups",myGroups)
-        sgmerge(x, y, color, myGroups)
+        console.log("myGroups", myGroups)
+        sgmerge(x, y, color, myGroups, findNeighborsColor(x, y, 0))
+        sgRemoveAllQiSelf(x, y)
     }
 }
 // return index
 var sgget = function (x, y) {
     for (var i = 0; i < stoneGroups.length; i++) {
-        var sg = stoneGroups[i]
-        for (var j = 0; j < sg.stones.length; j++) {
-            var s = sg.stones[j]
-            if (s.x == x && s.y == y) {
-                return i
-            }
-        }
+        var sgs = stoneGroups[i].stones
+        if (sgs.has(toI(x, y))) return i
     }
     return -1
 }
-var sgmerge = function (x, y, color, indexs) {
-    var ret = []
+var sgmerge = function (x, y, color, indexs, qis) {
+    var ss = new Map()
+    var newQi = new Map()
     for (let idx of indexs) {
-        ret = ret.concat(stoneGroups[idx].stones)
+        ss = slmerge(ss, stoneGroups[idx].stones)
+        newQi = slmerge(newQi, stoneGroups[idx].qis)
     }
-    ret.push({ x: x, y: y })
-    // now ret all together
+    ss.set(toI(x, y), { x: x, y: y })
+    newQi = slmergePoss(newQi, qis)
+    newQi.delete(toI(x, y))
+    // now ss all together
     var newsgs = []
     for (var i = 0; i < stoneGroups.length; i++) {
         if (indexs.indexOf(i) == -1) {
             newsgs.push(stoneGroups[i])
         }
     }
-    newsgs.push({ color: color, stones: ret })
+    newsgs.push({ color: color, stones: ss, qis: newQi })
     stoneGroups = newsgs
 }
-var findNeighbors = function (x, y, color) {
+var slmerge = function (a, b) {
+    var ret = new Map();
+    for (let entry of a) {
+        ret.set(entry[0], entry[1])
+    }
+    for (let entry of b) {
+        ret.set(entry[0], entry[1])
+    }
+    return ret
+}
+var slmergePoss = function (a, b) {
+    var ret = new Map();
+    for (let entry of a) {
+        ret.set(entry[0], entry[1])
+    }
+    for (let entry of b) {
+        ret.set(toI(entry.x, entry.y), entry)
+    }
+    return ret
+}
+var sgRemoveAllQiSelf = function (x, y) {
+    for (var i = 0; i < stoneGroups.length; i++) {
+        stoneGroups[i].qis.delete(toI(x, y))
+    }
+}
+// var slget = function (sl, x, y) {
+//     return sl[toI(x, y)]
+// }
+// var slhas = function (sl, x, y) {
+//     return (sl[toI(x, y)] === undefined)
+// }
+// var sladd = function (sl, x, y) {
+//     if (!slhas(sl, x, y)) {
+//         sl[toI(x, y)] = { x: x, y: y }
+//     }
+// }
+var findNeighbors = function (x, y) {
+    var ret = [];
+    if (x - 1 >= 0) {
+        ret.push({ x: x - 1, y: y })
+    }
+    if (x + 1 < boardSize) {
+        ret.push({ x: x + 1, y: y })
+    }
+    if (y - 1 >= 0) {
+        ret.push({ x: x, y: y - 1 })
+    }
+    if (y + 1 >= 0) {
+        ret.push({ x: x, y: y + 1 })
+    }
+    return ret;
+}
+var findNeighborsColor = function (x, y, color) {
     var ret = [];
     if (x - 1 >= 0 && sget(x - 1, y) == color) {
         ret.push({ x: x - 1, y: y })
@@ -79,7 +139,7 @@ var findNeighbors = function (x, y, color) {
     return ret;
 }
 var findGroups = function (x, y, color) {
-    var poss = findNeighbors(x, y, color)
+    var poss = findNeighborsColor(x, y, color)
     var ret = [];
     for (let pos of poss) {
         if (sget(pos.x, pos.y) == color) {
@@ -91,8 +151,8 @@ var findGroups = function (x, y, color) {
     }
     return ret
 }
-var tizi=function(x,y, color){
-    var gs=findGroups(x,y,3-color)
+var tizi = function (x, y, color) {
+    var gs = findGroups(x, y, 3 - color)
 
 }
 
@@ -214,7 +274,7 @@ _C.addEventListener("click", function (event) {
             // 提子
             // 首先检测周围的不同色棋子是否可以提
             // 如不可，则继续检测自身
-            tizi(cursorPos.x, cursorPos.y, turn)
+            // tizi(cursorPos.x, cursorPos.y, turn)
 
 
             sset(cursorPos.x, cursorPos.y, turn)
