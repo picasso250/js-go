@@ -122,26 +122,13 @@ var findNeighbors = function (x, y) {
     if (y - 1 >= 0) {
         ret.push({ x: x, y: y - 1 })
     }
-    if (y + 1 >= 0) {
+    if (y + 1 < boardSize) {
         ret.push({ x: x, y: y + 1 })
     }
     return ret;
 }
 var findNeighborsColor = function (x, y, color) {
-    var ret = [];
-    if (x - 1 >= 0 && sget(x - 1, y) == color) {
-        ret.push({ x: x - 1, y: y })
-    }
-    if (x + 1 < boardSize && sget(x + 1, y) == color) {
-        ret.push({ x: x + 1, y: y })
-    }
-    if (y - 1 >= 0 && sget(x, y - 1) == color) {
-        ret.push({ x: x, y: y - 1 })
-    }
-    if (y + 1 >= 0 && sget(x, y + 1) == color) {
-        ret.push({ x: x, y: y + 1 })
-    }
-    return ret;
+    return findNeighbors(x,y).filter((v,i)=>sget(v.x, v.y) == color)
 }
 var findGroups = function (x, y, color) {
     var poss = findNeighborsColor(x, y, color)
@@ -308,6 +295,7 @@ _C.addEventListener("mousemove", function (event) {
     var i = parseInt(x / gridSize);
     var j = parseInt(y / gridSize);
     cursorPos.x = i; cursorPos.y = j;
+    console.log(findNeighbors(i,j))
 })
 _C.addEventListener("click", function (event) {
     // console.log("i,j", cursorPos.x, cursorPos.y)
