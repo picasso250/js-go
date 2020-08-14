@@ -321,15 +321,14 @@ _C.addEventListener("mousemove", function (event) {
     var i = parseInt(x / gridSize);
     var j = parseInt(y / gridSize);
     cursorPos.x = i; cursorPos.y = j;
+    // console.log(cursorPos);
     // console.log(findNeighbors(i,j))
 })
 var _T = document.getElementById("T")
 _C.addEventListener("click", function (event) {
     // console.log("i,j", cursorPos.x, cursorPos.y)
-    if (cursorPos.x < gridSize && cursorPos.y < gridSize) {
+    if (cursorPos.x < boardSize && cursorPos.y < boardSize) {
         // console.log("i,j", i, j)
-        // drawCursor(cursorPos.x, cursorPos.y)
-        // console.log(sget(cursorPos.x, cursorPos.y))
         if (sget(cursorPos.x, cursorPos.y) == 0) {
             console.log("doit", cursorPos.x, cursorPos.y, turn)
 
@@ -388,7 +387,7 @@ function step(timestamp) {
     ctx.save();
     drawBackground();
     drawPanel(boardSize)
-    if (cursorPos.x < gridSize && cursorPos.y < gridSize) {
+    if (cursorPos.x < boardSize && cursorPos.y < boardSize) {
         // console.log("i,j", i, j)
         drawCursor(cursorPos.x, cursorPos.y)
     }
