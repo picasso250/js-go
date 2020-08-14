@@ -50,6 +50,15 @@ var sgget = function (x, y) {
     }
     return -1
 }
+var sgRemoveItems = function (indexs) {
+    var newsgs = []
+    for (var i = 0; i < stoneGroups.length; i++) {
+        if (indexs.indexOf(i) == -1) {
+            newsgs.push(stoneGroups[i])
+        }
+    }
+    return newsgs
+}
 var sgmerge = function (x, y, color, indexs, qis) {
     var ss = new Map()
     var newQi = new Map()
@@ -61,15 +70,11 @@ var sgmerge = function (x, y, color, indexs, qis) {
     newQi = slmergePoss(newQi, qis)
     newQi.delete(toI(x, y))
     // now ss all together
-    var newsgs = []
-    for (var i = 0; i < stoneGroups.length; i++) {
-        if (indexs.indexOf(i) == -1) {
-            newsgs.push(stoneGroups[i])
-        }
-    }
+    var newsgs = sgRemoveItems(indexs)
     newsgs.push({ color: color, stones: ss, qis: newQi })
     stoneGroups = newsgs
 }
+
 var slmerge = function (a, b) {
     var ret = new Map();
     for (let entry of a) {
@@ -151,9 +156,40 @@ var findGroups = function (x, y, color) {
     }
     return ret
 }
+var removeStonesOnBoard = function (stones) {
+    for (let pos of stones) {
+        sset(pos.x, pos.y, 0)
+    }
+}
+var sgUpdateAllQi = function () {
+    for (let sg of stoneGroups) {
+        var stones = sg.stones
+        for (let s of stones.values()) {
+            var n = findNeighborsColor(s.x, s.y, 0)
+            if (n.length > 0) {
+                for (let pos of n) {
+                    sg.qis.set(toI(pos.x, pos.y), pos)
+                }
+            }
+        }
+    }
+}
 var tizi = function (x, y, color) {
+    // 首先检测周围的不同色棋子是否可以提
+    // 如不可，则继续检测自身
     var gs = findGroups(x, y, 3 - color)
-
+    var indexs = [];
+    for (let i of gs) {
+        if (stoneGroups[i].qis.size == 0) {
+            indexs.push(i)
+            removeStonesOnBoard(stoneGroups[i].stones.values())
+        }
+    }
+    if(indexs.length>0){
+        var newSg = sgRemoveItems(indexs)
+        sgUpdateAllQi()
+    }
+    
 }
 
 var drawBackground = function () {
@@ -274,8 +310,7 @@ _C.addEventListener("click", function (event) {
             // 提子
             // 首先检测周围的不同色棋子是否可以提
             // 如不可，则继续检测自身
-            // tizi(cursorPos.x, cursorPos.y, turn)
-
+            tizi(cursorPos.x, cursorPos.y, turn)
 
             sset(cursorPos.x, cursorPos.y, turn)
             turn = 3 - turn;
