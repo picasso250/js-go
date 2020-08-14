@@ -185,11 +185,24 @@ var tizi = function (x, y, color) {
             removeStonesOnBoard(stoneGroups[i].stones.values())
         }
     }
-    if(indexs.length>0){
-        var newSg = sgRemoveItems(indexs)
+    if (indexs.length > 0) {
+        stoneGroups = sgRemoveItems(indexs)
         sgUpdateAllQi()
+    } else {
+        // 自杀
+        var gs = findGroups(x, y, color)
+        if (gs.length > 0) {
+            var i = gs[0];
+            if (stoneGroups[i].qis.size == 0) {
+                removeStonesOnBoard(stoneGroups[i].stones.values())
+                // removeStonesOnBoard([{ x: x, y: y }])
+                stoneGroups = sgRemoveItems([i])
+                sgUpdateAllQi()
+                return true;
+            }
+        }
     }
-    
+    return false;
 }
 
 var drawBackground = function () {
@@ -310,9 +323,8 @@ _C.addEventListener("click", function (event) {
             // 提子
             // 首先检测周围的不同色棋子是否可以提
             // 如不可，则继续检测自身
-            tizi(cursorPos.x, cursorPos.y, turn)
-
-            sset(cursorPos.x, cursorPos.y, turn)
+            if (!tizi(cursorPos.x, cursorPos.y, turn))
+                sset(cursorPos.x, cursorPos.y, turn)
             turn = 3 - turn;
         }
     }
