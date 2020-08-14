@@ -128,7 +128,7 @@ var findNeighbors = function (x, y) {
     return ret;
 }
 var findNeighborsColor = function (x, y, color) {
-    return findNeighbors(x,y).filter((v,i)=>sget(v.x, v.y) == color)
+    return findNeighbors(x, y).filter((v, i) => sget(v.x, v.y) == color)
 }
 var findGroups = function (x, y, color) {
     var poss = findNeighborsColor(x, y, color)
@@ -190,6 +190,14 @@ var tizi = function (x, y, color) {
         }
     }
     return false;
+}
+var isAllColor = function (lst, color) {
+    for (let p of lst) {
+        if (sget(p.x, p.y) != color) {
+            return false;
+        }
+    }
+    return true;
 }
 
 var drawBackground = function () {
@@ -295,7 +303,7 @@ _C.addEventListener("mousemove", function (event) {
     var i = parseInt(x / gridSize);
     var j = parseInt(y / gridSize);
     cursorPos.x = i; cursorPos.y = j;
-    console.log(findNeighbors(i,j))
+    // console.log(findNeighbors(i,j))
 })
 _C.addEventListener("click", function (event) {
     // console.log("i,j", cursorPos.x, cursorPos.y)
@@ -305,14 +313,24 @@ _C.addEventListener("click", function (event) {
         // console.log(sget(cursorPos.x, cursorPos.y))
         if (sget(cursorPos.x, cursorPos.y) == 0) {
             console.log("doit", cursorPos.x, cursorPos.y, turn)
+
+
+
             sgadd(cursorPos.x, cursorPos.y, turn)
             console.log(stoneGroups)
 
             // 提子
             // 首先检测周围的不同色棋子是否可以提
             // 如不可，则继续检测自身
-            if (!tizi(cursorPos.x, cursorPos.y, turn))
+            if (!tizi(cursorPos.x, cursorPos.y, turn)) {
+                // 禁着点
+                if (isAllColor(findNeighbors(cursorPos.x, cursorPos.y), 3 - turn)) {
+                    alert("禁着")
+                    return;
+                }
                 sset(cursorPos.x, cursorPos.y, turn)
+            }
+
             turn = 3 - turn;
         }
     }
