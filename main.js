@@ -39,7 +39,8 @@ var sgadd = function (x, y, color) {
         var myGroups = findGroups(x, y, color)
         console.log("myGroups", myGroups)
         sgmerge(x, y, color, myGroups, findNeighborsColor(x, y, 0))
-        sgRemoveAllQiSelf(x, y)
+        // 这里不如把所有的气重新算一遍？？？
+        // sgRemoveAllQiSelf(x, y)
     }
 }
 // return index
@@ -59,6 +60,7 @@ var sgRemoveItems = function (indexs) {
     }
     return newsgs
 }
+// indexes: 块索引
 var sgmerge = function (x, y, color, indexs, qis) {
     var ss = new Map()
     var newQi = new Map()
@@ -151,6 +153,7 @@ var removeStonesOnBoard = function (stones) {
 var sgUpdateAllQi = function () {
     for (let sg of stoneGroups) {
         var stones = sg.stones
+        sg.qis = new Map()
         for (let s of stones.values()) {
             var n = findNeighborsColor(s.x, s.y, 0)
             if (n.length > 0) {
@@ -161,13 +164,25 @@ var sgUpdateAllQi = function () {
         }
     }
 }
+var makeMove = function (cursorPos, turn) {
+    // 落子
+    sset(cursorPos.x, cursorPos.y, turn)
+
+    // 加入到已有棋块
+    sgadd(cursorPos.x, cursorPos.y, turn)
+
+    // 重新计算所有的气
+    sgUpdateAllQi()
+}
 var tizi = function (x, y, color) {
     // 首先检测周围的不同色棋子是否可以提
     // 如不可，则继续检测自身
     var gs = findGroups(x, y, 3 - color)
     var indexs = [];
     for (let i of gs) {
-        if (stoneGroups[i].qis.size == 0) {
+        var qis = stoneGroups[i].qis;
+        console.log(qis.values().length)
+        if (qis.size == 0) {
             indexs.push(i)
             removeStonesOnBoard(stoneGroups[i].stones.values())
         }
@@ -314,7 +329,7 @@ _C.addEventListener("click", function (event) {
         if (sget(cursorPos.x, cursorPos.y) == 0) {
             console.log("doit", cursorPos.x, cursorPos.y, turn)
 
-            sgadd(cursorPos.x, cursorPos.y, turn)
+            makeMove(cursorPos, turn)
             console.log(stoneGroups)
 
             // 提子
@@ -323,10 +338,11 @@ _C.addEventListener("click", function (event) {
             if (!tizi(cursorPos.x, cursorPos.y, turn)) {
                 // 禁着点
                 if (isAllColor(findNeighbors(cursorPos.x, cursorPos.y), 3 - turn)) {
+                    sset(cursorPos.x, cursorPos.y, 0)
                     alert("禁着")
                     return;
                 }
-                sset(cursorPos.x, cursorPos.y, turn)
+                // sset(cursorPos.x, cursorPos.y, turn)
             }
 
             turn = 3 - turn;
