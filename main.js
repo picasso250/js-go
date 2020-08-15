@@ -184,7 +184,7 @@ var tizi = function (x, y, color) {
     var indexs = [];
     for (let i of gs) {
         var qis = stoneGroups[i].qis;
-        console.log(qis.values().length)
+        // console.log(qis.values().length)
         if (qis.size == 0) {
             indexs.push(i)
             removeStonesOnBoard(stoneGroups[i].stones.values())
@@ -348,6 +348,8 @@ _C.addEventListener("click", function (event) {
     if (cursorPos.x < boardSize && cursorPos.y < boardSize) {
         // console.log("i,j", i, j)
         if (sget(cursorPos.x, cursorPos.y) == 0) {
+            oldsgs = stoneGroups
+
             console.log("doit", cursorPos.x, cursorPos.y, turn)
 
             makeMove(cursorPos, turn)
@@ -364,6 +366,7 @@ _C.addEventListener("click", function (event) {
                 // 禁着点
                 if (isAllColor(findNeighbors(cursorPos.x, cursorPos.y), 3 - turn)) {
                     sset(cursorPos.x, cursorPos.y, 0)
+                    stoneGroups = oldsgs
                     alert("禁着")
                     return;
                 }
