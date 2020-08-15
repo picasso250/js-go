@@ -374,8 +374,8 @@ _C.addEventListener("click", function (event) {
     }
 })
 document.getElementsByTagName("body")[0].addEventListener("keyup", function (event) {
-    console.log(event)
-    if (event.key == 'f') {
+    // console.log(event)
+    if (event.target == this && event.key == 'f') {
         turn = 3 - turn;
     }
 })
