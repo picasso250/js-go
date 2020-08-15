@@ -382,18 +382,32 @@ document.getElementsByTagName("body")[0].addEventListener("keyup", function (eve
         turn = 3 - turn;
     }
 })
+_T.addEventListener("change", function (event) {
+    var v = _T.value
+    if (v.length > 0) {
+        if (v[v - 1] != '\n') _T.value += '\n';
+    }
+})
 var RePlay = document.getElementById("RePlay");
 RePlay.addEventListener("click", function (event) {
     if (confirm("确定要重现棋谱？棋盘将会清空")) {
         boardClear();
         var z = _T.value.split(/\n|\r|\r\n/)
+        var i = 0;
         for (let ins of z) {
+            i++;
             if (ins.length > 0) {
                 var a = ins.split(" ")
                 var color = parseInt(a[1])
                 var aa = a[0].split(",")
-                makeMove({ x: parseInt(aa[0]), y: parseInt(aa[1]) }, color)
-                tizi(parseInt(aa[0]), parseInt(aa[1]), color)
+                var x = parseInt(aa[0]), y = parseInt(aa[1])
+                if (sget(x, y) != 0) {
+                    alert("第" + i + "行 重复落子 " + ins)
+                    break;
+                }
+                makeMove({ x: x, y: y }, color)
+                tizi(x, y, color)
+                turn = 3 - color;
             }
         }
     }
