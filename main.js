@@ -313,6 +313,24 @@ var drawStone = function (x, y, color) {
 
     ctx.restore();
 }
+var drawStoneAbs = function (x, y, color) {
+    ctx.save()
+    ctx.beginPath();
+
+    var radius = stoneSize; // 圆弧半径
+    var startAngle = 0; // 开始点
+    var endAngle = 2 * Math.PI; // 结束点
+    var anticlockwise = false; // 顺时针或逆时针
+
+    ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
+
+    ctx.strokeStyle = 'black'
+    ctx.stroke();
+    ctx.fillStyle = color == 1 ? 'black' : 'white'
+    ctx.fill();
+
+    ctx.restore();
+}
 
 _C.addEventListener("mousemove", function (event) {
     // console.log(event.x-beginPoint.x,event.y-beginPoint.y)
@@ -353,6 +371,12 @@ _C.addEventListener("click", function (event) {
 
             turn = 3 - turn;
         }
+    }
+})
+document.getElementsByTagName("body")[0].addEventListener("keyup", function (event) {
+    console.log(event)
+    if (event.key == 'f') {
+        turn = 3 - turn;
     }
 })
 var RePlay = document.getElementById("RePlay");
@@ -403,7 +427,12 @@ function step(timestamp) {
             }
         }
     }
+
+    // 当前棋子颜色
+    drawStoneAbs((boardSize + 1) * gridSize, 1 * gridSize, turn);
+
     ctx.restore()
+
     window.requestAnimationFrame(step);
 }
 init();
