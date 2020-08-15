@@ -355,10 +355,6 @@ _C.addEventListener("click", function (event) {
             makeMove(cursorPos, turn)
             console.log(stoneGroups)
 
-            var pu = "" + cursorPos.x + "," + cursorPos.y + " " + turn
-            console.log(pu)
-            _T.value += pu + "\r\n"
-
             // 提子
             // 首先检测周围的不同色棋子是否可以提
             // 如不可，则继续检测自身
@@ -371,6 +367,10 @@ _C.addEventListener("click", function (event) {
                     return;
                 }
             }
+
+            var pu = "" + cursorPos.x + "," + cursorPos.y + " " + turn
+            console.log(pu)
+            _T.value += pu + "\r\n"
 
             turn = 3 - turn;
         }
