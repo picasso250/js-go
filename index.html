@@ -15,6 +15,9 @@
       /* display: flex;
       flex-direction:column-reverse; */
     }
+    #Test textarea{
+      width:20em;
+    }
   </style>
 </head>
 
@@ -25,9 +28,10 @@
   <script src="main.js"></script>
   <div id="Test">
     <h2>测试用例</h2>
-    
+
     <textarea> 8,6 2 棋块和气 </textarea>
     <div>sget(8,6)==2&&stoneGroups.length==1&&stoneGroups[0].qis.size==4</div>
+
     <textarea> 0,0 1 角有2气</textarea>
     <div>stoneGroups.length==1&&stoneGroups[0].qis.size==2</div>
     <textarea> 18,0 2 </textarea>
@@ -45,6 +49,20 @@
     <div>stoneGroups.length==1&&stoneGroups[0].qis.size==3</div>
     <textarea> 9,0 2 边有3气</textarea>
     <div>stoneGroups.length==1&&stoneGroups[0].qis.size==3</div>
+    
+
+    <textarea>
+      9,9 1 气的动态计算
+9,8 2
+    </textarea>
+    <div>stoneGroups[0].qis.size==3</div>
+    <textarea>
+      9,6 1
+10,5 1
+11,6 1
+10,6 2
+    </textarea>
+    <div>stoneGroups[0].qis.size==3&&stoneGroups[1].qis.size==3&&stoneGroups[2].qis.size==3</div>
     
     <textarea>
       9,6 1 接

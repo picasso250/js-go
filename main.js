@@ -36,7 +36,7 @@ var sgadd = function (x, y, color) {
     } else {
         // 寻找四个气，如同色，则寻找自己所在的区块
         // 最终找到所有的棋子块 stone group
-        var myGroups = findGroups(x, y, color)
+        var myGroups = findGroupsColor(x, y, color)
         // console.log("myGroups", myGroups)
         sgmerge(x, y, color, myGroups, findNeighborsColor(x, y, 0))
         // 这里不如把所有的气重新算一遍？？？
@@ -66,18 +66,22 @@ var sgmerge = function (x, y, color, indexs, qis) {
     var newQi = new Map()
     for (let idx of indexs) {
         ss = slmerge(ss, stoneGroups[idx].stones)
-        newQi = slmerge(newQi, stoneGroups[idx].qis)
+        // newQi = slmerge(newQi, stoneGroups[idx].qis)
     }
     ss.set(toI(x, y), { x: x, y: y })
-
-    // 这两个其实一点都没必要
-    newQi = slmergePoss(newQi, qis)
-    newQi.delete(toI(x, y))
 
     // now ss all together
     var newsgs = sgRemoveItems(indexs)
     newsgs.push({ color: color, stones: ss, qis: newQi })
     stoneGroups = newsgs
+
+    // 差分的更新气
+    var gs = findGroups(x, y)
+    for (let i of gs) {
+        stoneGroups[i] = sgUpdateQi(stoneGroups[i])
+    }
+    var i = sgget(x, y)
+    stoneGroups[i] = sgUpdateQi(stoneGroups[i])
 }
 
 var slmerge = function (a, b) {
@@ -132,7 +136,19 @@ var findNeighbors = function (x, y) {
 var findNeighborsColor = function (x, y, color) {
     return findNeighbors(x, y).filter((v, i) => sget(v.x, v.y) == color)
 }
-var findGroups = function (x, y, color) {
+var findGroups = function (x, y) {
+    var poss = findNeighbors(x, y)
+    var ret = [];
+    for (let pos of poss) {
+        var i = sgget(pos.x, pos.y);
+        if (i == -1) continue;
+        if (ret.indexOf(i) == -1) {
+            ret.push(i)
+        }
+    }
+    return ret
+}
+var findGroupsColor = function (x, y, color) {
     var poss = findNeighborsColor(x, y, color)
     var ret = [];
     for (let pos of poss) {
@@ -150,18 +166,22 @@ var removeStonesOnBoard = function (stones) {
         sset(pos.x, pos.y, 0)
     }
 }
-var sgUpdateAllQi = function () {
-    for (let sg of stoneGroups) {
-        var stones = sg.stones
-        sg.qis = new Map()
-        for (let s of stones.values()) {
-            var n = findNeighborsColor(s.x, s.y, 0)
-            if (n.length > 0) {
-                for (let pos of n) {
-                    sg.qis.set(toI(pos.x, pos.y), pos)
-                }
+var sgUpdateQi = function (sg) {
+    var stones = sg.stones
+    sg.qis = new Map()
+    for (let s of stones.values()) {
+        var n = findNeighborsColor(s.x, s.y, 0)
+        if (n.length > 0) {
+            for (let pos of n) {
+                sg.qis.set(toI(pos.x, pos.y), pos)
             }
         }
+    }
+    return sg
+}
+var sgUpdateAllQi = function () {
+    for (let sg of stoneGroups) {
+        sgUpdateQi(sg)
     }
 }
 var makeMove = function (cursorPos, turn) {
@@ -172,12 +192,12 @@ var makeMove = function (cursorPos, turn) {
     sgadd(cursorPos.x, cursorPos.y, turn)
 
     // 重新计算所有的气
-    sgUpdateAllQi()
+    // sgUpdateAllQi()
 }
 var tizi = function (x, y, color) {
     // 首先检测周围的不同色棋子是否可以提
     // 如不可，则继续检测自身
-    var gs = findGroups(x, y, 3 - color)
+    var gs = findGroupsColor(x, y, 3 - color)
     var indexs = [];
     for (let i of gs) {
         var qis = stoneGroups[i].qis;
@@ -192,7 +212,7 @@ var tizi = function (x, y, color) {
         sgUpdateAllQi()
     } else {
         // 自杀
-        var gs = findGroups(x, y, color)
+        var gs = findGroupsColor(x, y, color)
         if (gs.length > 0) {
             var i = gs[0];
             if (stoneGroups[i].qis.size == 0) {
@@ -365,6 +385,8 @@ _C.addEventListener("click", function (event) {
                     alert("禁着")
                     return;
                 }
+            } else {
+                // sgUpdateAllQi()
             }
 
             var pu = "" + cursorPos.x + "," + cursorPos.y + " " + turn
@@ -405,7 +427,9 @@ var replay = function (pu) {
                 break;
             }
             makeMove({ x: x, y: y }, color)
-            tizi(x, y, color)
+            if (tizi(x, y, color))
+                sgUpdateAllQi()
+
             turn = 3 - color;
         }
     }
