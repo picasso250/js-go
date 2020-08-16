@@ -105,17 +105,14 @@ var sgRemoveAllQiSelf = function (x, y) {
         stoneGroups[i].qis.delete(toI(x, y))
     }
 }
-// var slget = function (sl, x, y) {
-//     return sl[toI(x, y)]
-// }
-// var slhas = function (sl, x, y) {
-//     return (sl[toI(x, y)] === undefined)
-// }
-// var sladd = function (sl, x, y) {
-//     if (!slhas(sl, x, y)) {
-//         sl[toI(x, y)] = { x: x, y: y }
-//     }
-// }
+var boardClear = function () {
+    for (var i = 0; i < boardSize; i++) {
+        for (var j = 0; j < boardSize; j++) {
+            sset(i, j, 0)
+        }
+    }
+    stoneGroups = [];
+}
 var findNeighbors = function (x, y) {
     var ret = [];
     if (x - 1 >= 0) {
@@ -217,6 +214,8 @@ var isAllColor = function (lst, color) {
     }
     return true;
 }
+
+// ==== 以下是画图函数 ====
 
 var drawBackground = function () {
     ctx.save();
@@ -389,38 +388,34 @@ _T.addEventListener("change", function (event) {
     }
 })
 var RePlay = document.getElementById("RePlay");
+var replay = function (pu) {
+    boardClear();
+    var z = pu.split(/\n|\r|\r\n/)
+    var i = 0;
+    for (let ins of z) {
+        i++;
+        ins = ins.trim()
+        if (ins.length > 0) {
+            var a = ins.split(" ")
+            var color = parseInt(a[1])
+            var aa = a[0].split(",")
+            var x = parseInt(aa[0]), y = parseInt(aa[1])
+            if (sget(x, y) != 0) {
+                alert("第" + i + "行 重复落子 " + ins)
+                break;
+            }
+            makeMove({ x: x, y: y }, color)
+            tizi(x, y, color)
+            turn = 3 - color;
+        }
+    }
+}
 RePlay.addEventListener("click", function (event) {
     if (confirm("确定要重现棋谱？棋盘将会清空")) {
-        boardClear();
-        var z = _T.value.split(/\n|\r|\r\n/)
-        var i = 0;
-        for (let ins of z) {
-            i++;
-            if (ins.length > 0) {
-                var a = ins.split(" ")
-                var color = parseInt(a[1])
-                var aa = a[0].split(",")
-                var x = parseInt(aa[0]), y = parseInt(aa[1])
-                if (sget(x, y) != 0) {
-                    alert("第" + i + "行 重复落子 " + ins)
-                    break;
-                }
-                makeMove({ x: x, y: y }, color)
-                tizi(x, y, color)
-                turn = 3 - color;
-            }
-        }
+        replay(_T.value)
     }
 })
 
-var boardClear = function () {
-    for (var i = 0; i < boardSize; i++) {
-        for (var j = 0; j < boardSize; j++) {
-            sset(i, j, 0)
-        }
-    }
-    stoneGroups = [];
-}
 function init() {
     boardClear();
 }

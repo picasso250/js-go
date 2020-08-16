@@ -11,6 +11,10 @@
     canvas{
       /* background-color:white; */
     }
+    #Test{
+      /* display: flex;
+      flex-direction:column-reverse; */
+    }
   </style>
 </head>
 
@@ -19,6 +23,94 @@
   <textarea id="T" rows="20"></textarea>
   <button id="RePlay">复现棋谱</button>
   <script src="main.js"></script>
+  <div id="Test">
+    <h2>测试用例</h2>
+    
+    <textarea> 8,6 2 棋块和气 </textarea>
+    <div>sget(8,6)==2&&stoneGroups.length==1&&stoneGroups[0].qis.size==4</div>
+    <textarea> 0,0 1 角有2气</textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==2</div>
+    <textarea> 18,0 2 </textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==2</div>
+    <textarea> 0,18 1 </textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==2</div>
+    <textarea> 18,18 2 </textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==2</div>
+
+    <textarea> 0,6 1 边有3气</textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==3</div>
+    <textarea> 18,14 2 边有3气</textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==3</div>
+    <textarea> 7,18 1 边有3气</textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==3</div>
+    <textarea> 9,0 2 边有3气</textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==3</div>
+    
+    <textarea>
+      9,6 1 接
+      9,8 1
+      9,7 1
+    </textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==8</div>
+    <textarea>
+      11,5 1 接4个
+10,6 1
+12,6 1
+11,7 1
+11,6 1
+    </textarea>
+    <div>stoneGroups.length==1&&stoneGroups[0].qis.size==8</div>
+
+    <textarea>
+      8,8 1 提子
+      9,8 2
+      8,9 2
+      7,8 2
+      8,7 2
+    </textarea>
+    <div>sget(8,8)==0</div>
+    <textarea>
+      18,18 1 角落提子
+17,18 2
+18,17 2
+    </textarea>
+    <div>sget(18,18)==0</div>
+
+    <textarea>
+      0,18 1 劫
+1,18 2
+1,17 1
+0,17 2
+2,18 1
+0,18 1
+1,18 2
+0,18 1
+1,18 2
+0,18 1
+1,18 2
+0,16 1
+0,18 1
+    </textarea>
+    <div>sget(1,18)==0&&sget(0,17)==0</div>
+    <textarea>
+      0,18 1 自杀
+1,18 2
+1,17 1
+0,17 2
+2,18 1
+0,18 1
+1,18 2
+0,18 1
+1,18 2
+0,18 1
+1,18 2
+0,16 1
+0,18 2
+    </textarea>
+    <div>sget(1,18)==0&&sget(0,17)==0&&sget(0,18)==0</div>
+
+  </div>
+  <script src="test.js"></script>
 </body>
 
 </html>
